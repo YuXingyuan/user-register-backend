@@ -1,0 +1,38 @@
+version: "3"
+
+services:
+  user-register-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: user-register-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URI=jdbc:postgresql://db-service:5432/mydb
+      - DATABASE_USERNAME=admin
+      - DATABASE_PASSWORD=admin123
+      - MAIL_HOST=email-service
+      - MAIL_PORT=8025
+    depends_on:
+      - db-service
+      - email-service
+  db-service:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin123
+      - POSTGRES_DB=mydb
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - dbvol:/var/lib/postgresql/data/pgdata
+  email-service:
+    image: gessnerfl/fake-smtp-server:latest
+    ports:
+      - "8081:8080"
+      - "8025:8025"
+
+volumes:
+  dbvol:
